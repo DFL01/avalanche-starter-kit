@@ -9,7 +9,7 @@ import "@teleporter/ITeleporterMessenger.sol";
 import "@teleporter/ITeleporterReceiver.sol";
 import "./txAllowList.sol";
 
-contract ReceiverOnSubnet is ITeleporterReceiver {
+contract ReceiverOnSubnetDeposit is ITeleporterReceiver {
     ITeleporterMessenger public immutable messenger = ITeleporterMessenger(0x253b2784c75e510dD0fF1da844684a1aC0aa5fcf);
 
     IAllowList txAllowList = IAllowList(0x0200000000000000000000000000000000000002);
@@ -23,6 +23,10 @@ contract ReceiverOnSubnet is ITeleporterReceiver {
         // Store the message.
         address newParticipant = abi.decode(message, (address));
 
-        txAllowList.setEnabled(newParticipant);
+        if (join) {
+            txAllowList.setEnabled(newParticipant);
+        } else {
+            txAllowList.setNone(newParticipant);
+        }
     }
 }
