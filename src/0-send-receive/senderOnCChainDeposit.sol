@@ -31,9 +31,26 @@ contract SenderOnCChainDeposit {
         owner = msg.sender;
     }
 
+    /**
+     * @dev Sends a message to another chain.
+     * JOIN (bool): True will join user to the subnet, False will withdraw user from subnet
+     */
+    function sendMessage(bool join) internal onlyUser {
+        messenger.sendCrossChainMessage(
+            TeleporterMessageInput({
+                destinationBlockchainID: 0x55e1fcfdde01f9f6d4c16fa2ed89ce65a8669120a86f321eef121891cab61241,
+                destinationAddress: 0x52C84043CD9c865236f11d9Fc9F56aa003c1f922,
+                feeInfo: TeleporterFeeInfo({feeTokenAddress: address(0), amount: 0}),
+                requiredGasLimit: 1000000,
+                allowedRelayerAddresses: new address[](0),
+                message: abi.encode(msg.sender, join)
+            })
+        );
+    }
+
     // Function for users to make a deposit
     function deposit() external payable {
-        require(msg.value > 0.02, "Deposit amount must be greater than 0.02 Eth");
+        require(msg.value > 0.02 ether, "Deposit amount must be greater than 0.02 Eth");
         userDeposits[msg.sender] += msg.value;
         sendMessage(true);
     }
@@ -44,22 +61,5 @@ contract SenderOnCChainDeposit {
         userDeposits[msg.sender] = 0;
         payable(msg.sender).transfer(amount);
         sendMessage(false);
-    }
-
-    /**
-     * @dev Sends a message to another chain.
-     * JOIN (bool): True will join user to the subnet, False will withdraw user from subnet
-     */
-    function sendMessage(bool join) external onlyUser {
-        messenger.sendCrossChainMessage(
-            TeleporterMessageInput({
-                destinationBlockchainID: 0x216f92e177e22daa815811e6de0ce269e447dba4fcc3af60eb8a4c53caf121aa,
-                destinationAddress: 0x52C84043CD9c865236f11d9Fc9F56aa003c1f922,
-                feeInfo: TeleporterFeeInfo({feeTokenAddress: address(0), amount: 0}),
-                requiredGasLimit: 1000000,
-                allowedRelayerAddresses: new address[](0),
-                message: abi.encode(msg.sender, join)
-            })
-        );
     }
 }

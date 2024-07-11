@@ -21,7 +21,7 @@ contract ReceiverOnSubnetDeposit is ITeleporterReceiver {
         require(msg.sender == address(messenger), "ReceiverOnSubnet: unauthorized TeleporterMessenger");
 
         // Store the message.
-        address newParticipant = abi.decode(message, (address));
+        (address newParticipant, bool join) = abi.decode(message, (address, bool));
 
         if (join) {
             txAllowList.setEnabled(newParticipant);
